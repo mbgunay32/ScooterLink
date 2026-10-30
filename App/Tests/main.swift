@@ -38,8 +38,15 @@ check(a[10] == [2, 11, 0, 2, 0xD6, 0x47, 0x47], "first colour (negative) bytes")
 // Live screen layout (CommandBuilder.f): header + 4 fixed + left + right + content icon + lines.
 let screen = LiveScreen(header: "14:32", line1: "47 km/h", line2: "Playing", leftAction: DashIcon.pause, rightAction: DashIcon.next, colors: .theme)
 let enc2 = [UInt8](screen.encode(requestId: 7))
-let expected: [UInt8] = [1, 7, 14, 5] + Array("14:32".utf8) + [0, 2, 14, 1, 1, 4, 0, 13, 2, 1, 5, 0, 13, 15, 0,
-                          7] + Array("47 km/h".utf8) + [0, 7] + Array("Playing".utf8) + [0]
+// Built in steps: one long `+` chain of literals is too slow for the type checker.
+var expected: [UInt8] = [1, 7, 14, 5]
+expected += Array("14:32".utf8)
+let body: [UInt8] = [0, 2, 14, 1, 1, 4, 0, 13, 2, 1, 5, 0, 13, 15, 0, 7]
+expected += body
+expected += Array("47 km/h".utf8)
+expected += [0, 7] as [UInt8]
+expected += Array("Playing".utf8)
+expected += [0] as [UInt8]
 check(enc2 == expected, "live screen bytes")
 let bare = [UInt8](LiveScreen(header: "Hi", line1: nil, line2: nil, leftAction: nil, rightAction: nil, colors: .theme).encode(requestId: 1))
 check(bare == [1, 1, 14, 2, 72, 105, 0, 2, 14, 0, 0, 15, 0, 0, 0], "live screen without actions/lines")

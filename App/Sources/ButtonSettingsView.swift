@@ -13,31 +13,31 @@ struct ButtonSettingsView: View {
                     ButtonActionRow(function: function)
                 }
             } footer: {
-                Text("Changes apply from the next press, no reconnect needed.")
+                Text(L("Changes apply from the next press, no reconnect needed."))
             }
             .id(generation)
 
             Section {
-                Label("Back / Forward 15 s and 30 s work in apps that offer jumps: podcasts, audiobooks, most video apps. Spotify offers them for podcasts, not for songs.",
+                Label(L("Back / Forward 15 s and 30 s work in apps that offer jumps: podcasts, audiobooks, most video apps. Spotify offers them for podcasts, not for songs."),
                       systemImage: "info.circle")
-                Label("Mute on the scooter's own screen always brings the phone screen back. Its action here runs only while the phone screen is showing.",
+                Label(L("Mute on the scooter's own screen always brings the phone screen back. Its action here runs only while the phone screen is showing."),
                       systemImage: "speaker.slash")
-                Label("Menu may stay with the dash on some bikes. Check Diagnostics → Buttons to see whether it reaches the phone.",
+                Label(L("Menu may stay with the dash on some bikes. Check Diagnostics → Buttons to see whether it reaches the phone."),
                       systemImage: "line.3.horizontal")
             }
             .font(.footnote)
             .foregroundStyle(.secondary)
 
             Section {
-                Button("Reset to defaults", systemImage: "arrow.counterclockwise", role: .destructive) {
+                Button(L("Reset to defaults"), systemImage: "arrow.counterclockwise", role: .destructive) {
                     confirmReset = true
                 }
             }
         }
-        .navigationTitle("Buttons")
+        .navigationTitle(L("Buttons"))
         .navigationBarTitleDisplayMode(.inline)
-        .confirmationDialog("Reset all buttons to their default actions?", isPresented: $confirmReset, titleVisibility: .visible) {
-            Button("Reset", role: .destructive) {
+        .confirmationDialog(L("Reset all buttons to their default actions?"), isPresented: $confirmReset, titleVisibility: .visible) {
+            Button(L("Reset"), role: .destructive) {
                 ButtonSettings.resetAll()
                 generation += 1
             }
@@ -95,7 +95,7 @@ struct ButtonMapRow: View {
 
     private var summary: String {
         if function == .volumeMute {
-            return action == .nothing ? "Phone screen" : "\(action.label) · phone screen"
+            return action == .nothing ? L("Phone screen") : "\(action.label) · \(L("phone screen"))"
         }
         return action.label
     }

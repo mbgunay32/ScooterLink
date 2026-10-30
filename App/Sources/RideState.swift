@@ -13,8 +13,8 @@ final class RideState: ObservableObject {
     }
 
     func rideScreen(colors: ScreenColors) -> LiveScreen {
-        LiveScreen(header: "Müzik",
-                   line1: isAudioPlaying ? "Çalıyor" : "Duraklatıldı",
+        LiveScreen(header: L("Music"),
+                   line1: isAudioPlaying ? L("Playing") : L("Paused"),
                    line2: nil,
                    leftAction: isAudioPlaying ? DashIcon.pause : DashIcon.play,
                    rightAction: DashIcon.next,

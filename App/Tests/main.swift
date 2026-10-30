@@ -52,6 +52,13 @@ let bare = [UInt8](LiveScreen(header: "Hi", line1: nil, line2: nil, leftAction: 
 check(bare == [1, 1, 14, 2, 72, 105, 0, 2, 14, 0, 0, 15, 0, 0, 0], "live screen without actions/lines")
 check(LiveScreen.clean("Ελλάδα café 🚀 " + String(repeating: "x", count: 40)).count == 30, "text cleaned and capped at 30")
 check(String(decoding: LiveScreen.clean("Çalıyor: Şarkı İçin Ğüö"), as: UTF8.self) == "Caliyor: Sarki Icin Guo", "Turkish letters folded to ASCII")
+// Language: Turkish and English picks, and a missing entry falls back to English.
+UserDefaults.standard.set("turkish", forKey: AppLanguage.key)
+check(L("Play / pause") == "Oynat / duraklat" && ButtonFunction.select.label == "Seç", "Turkish labels")
+check(L("not translated") == "not translated", "missing entry stays English")
+UserDefaults.standard.set("english", forKey: AppLanguage.key)
+check(L("Play / pause") == "Play / pause" && ButtonFunction.select.label == "Select", "English labels")
+UserDefaults.standard.removeObject(forKey: AppLanguage.key)
 let themed = Assignments.all(includeColors: true, theme: Theme(red: 1, green: 0, blue: 0).palette)
 check(themed.count == 27 && themed[22] == [2, 23, 0, 14, 255, 0, 0] && themed[21] == [2, 22, 0, 13, 255, 89, 89], "theme replaces orange slots")
 exit(failures == 0 ? 0 : 1)

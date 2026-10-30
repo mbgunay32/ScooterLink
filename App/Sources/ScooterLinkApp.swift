@@ -16,6 +16,7 @@ struct ScooterLinkApp: App {
 
 struct ContentView: View {
     @EnvironmentObject private var client: SABClient
+    @AppStorage(AppLanguage.key) private var language = AppLanguage.system.rawValue
 
     var body: some View {
         NavigationStack {
@@ -30,16 +31,28 @@ struct ContentView: View {
                     }
                     ToolbarItem(placement: .topBarTrailing) {
                         Menu {
-                            Button("Reconnect", systemImage: "arrow.clockwise") { client.reconnectLast() }
-                            Button("Show phone screen on dash", systemImage: "iphone.gen3") { client.ensurePhoneScreen() }
+                            Button(L("Reconnect"), systemImage: "arrow.clockwise") { client.reconnectLast() }
+                            Button(L("Show phone screen on dash"), systemImage: "iphone.gen3") { client.ensurePhoneScreen() }
+                            Picker(selection: $language) {
+                                ForEach(AppLanguage.allCases) { option in
+                                    Text(option.title).tag(option.rawValue)
+                                }
+                            } label: {
+                                Label("Dil · Language", systemImage: "globe")
+                            }
+                            .pickerStyle(.menu)
                             Divider()
-                            Button("Disconnect", systemImage: "xmark.circle") { client.disconnect() }
-                            Button("Forget scooter key", systemImage: "key.slash", role: .destructive) { client.forgetKey() }
+                            Button(L("Disconnect"), systemImage: "xmark.circle") { client.disconnect() }
+                            Button(L("Forget scooter key"), systemImage: "key.slash", role: .destructive) { client.forgetKey() }
                         } label: { Image(systemName: "ellipsis.circle") }
                     }
                 }
                 .toolbarBackground(.hidden, for: .navigationBar)
         }
+        // Rebuild every screen in the new language, and redraw the dash text.
+        .id(language)
+        .environment(\.locale, AppLanguage.locale)
+        .onChange(of: language) { _, _ in client.pushScreen(force: true) }
     }
 }
 
@@ -50,9 +63,9 @@ struct DiagnosticsView: View {
     var body: some View {
         VStack(spacing: 0) {
             Picker("", selection: $tab) {
-                Text("Devices").tag(0)
-                Text("Buttons").tag(1)
-                Text("Log").tag(2)
+                Text(L("Devices")).tag(0)
+                Text(L("Buttons")).tag(1)
+                Text(L("Log")).tag(2)
             }
             .pickerStyle(.segmented)
             .padding(.horizontal)
@@ -63,7 +76,7 @@ struct DiagnosticsView: View {
             default: LogView()
             }
         }
-        .navigationTitle("Diagnostics")
+        .navigationTitle(L("Diagnostics"))
         .navigationBarTitleDisplayMode(.inline)
     }
 }
@@ -77,7 +90,7 @@ struct ButtonsView: View {
                 VStack(spacing: 8) {
                     Image(systemName: last.function?.symbol ?? "questionmark")
                         .font(.system(size: 64, weight: .semibold))
-                    Text(last.function?.label ?? "Unknown 0x\(String(format: "%02X", last.raw))")
+                    Text(last.function?.label ?? L("Unknown") + " 0x\(String(format: "%02X", last.raw))")
                         .font(.title.bold())
                     Text(last.time, style: .time).font(.caption).foregroundStyle(.secondary)
                 }
@@ -88,13 +101,13 @@ struct ButtonsView: View {
                 .id(last.id)
                 .transition(.scale.combined(with: .opacity))
             } else {
-                ContentUnavailableView("No presses yet",
+                ContentUnavailableView(L("No presses yet"),
                                        systemImage: "hand.tap",
-                                       description: Text("Connect in Devices, then press each handlebar button."))
+                                       description: Text(L("Connect in Devices, then press each handlebar button.")))
             }
 
             List {
-                Section("Seen so far") {
+                Section(L("Seen so far")) {
                     ForEach(ButtonFunction.allCases, id: \.rawValue) { function in
                         let count = client.presses.filter { $0.raw == function.rawValue }.count
                         HStack {
@@ -121,15 +134,15 @@ struct DevicesView: View {
         List {
             Section {
                 if client.phase == .scanning {
-                    Button("Stop scanning", systemImage: "stop.circle") { client.stopScan() }
+                    Button(L("Stop scanning"), systemImage: "stop.circle") { client.stopScan() }
                 } else {
-                    Button("Scan for scooter", systemImage: "dot.radiowaves.left.and.right") { client.startScan() }
+                    Button(L("Scan for scooter"), systemImage: "dot.radiowaves.left.and.right") { client.startScan() }
                 }
-                Toggle("Show all Bluetooth devices", isOn: $client.showAllDevices)
+                Toggle(L("Show all Bluetooth devices"), isOn: $client.showAllDevices)
             } footer: {
-                Text("Before the first connect: delete the RoadSync phone pairing on the PCX dashboard, so the scooter accepts this app's key.")
+                Text(L("Before the first connect: delete the RoadSync phone pairing on the PCX dashboard, so the scooter accepts this app's key."))
             }
-            Section("Found") {
+            Section(L("Found")) {
                 ForEach(client.devices.filter { client.showAllDevices || $0.isHonda }) { device in
                     Button {
                         client.connect(device)
@@ -157,10 +170,10 @@ struct LogView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                ShareLink(item: client.logText) { Label("Share log", systemImage: "square.and.arrow.up") }
+                ShareLink(item: client.logText) { Label(L("Share log"), systemImage: "square.and.arrow.up") }
                 Spacer()
-                Button("Copy", systemImage: "doc.on.doc") { UIPasteboard.general.string = client.logText }
-                Button("Clear", systemImage: "trash", role: .destructive) { client.clearLog() }
+                Button(L("Copy"), systemImage: "doc.on.doc") { UIPasteboard.general.string = client.logText }
+                Button(L("Clear"), systemImage: "trash", role: .destructive) { client.clearLog() }
             }
             .padding(.horizontal)
             .padding(.bottom, 6)

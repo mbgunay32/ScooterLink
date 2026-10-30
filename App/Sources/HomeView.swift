@@ -11,7 +11,7 @@ struct HomeView: View {
                 LastPressCard()
                 ButtonMapCard()
                 DashScreenCard()
-                Text("Turn the key and ScooterLink connects by itself. Keep it in the app switcher: iOS won't relaunch an app you swipe away.")
+                Text(L("Turn the key and ScooterLink connects by itself. Keep it in the app switcher: iOS won't relaunch an app you swipe away."))
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -49,19 +49,19 @@ extension SABClient {
     var status: ConnectionStatus {
         switch phase {
         case .idle:
-            return .init(title: "Waiting for your scooter", detail: "Turn the ignition on", symbol: "key.horizontal.fill", tone: .waiting)
+            return .init(title: L("Waiting for your scooter"), detail: L("Turn the ignition on"), symbol: "key.horizontal.fill", tone: .waiting)
         case .scanning:
-            return .init(title: "Looking for your scooter", detail: "Keep the phone close to the bike", symbol: "dot.radiowaves.left.and.right", tone: .working)
+            return .init(title: L("Looking for your scooter"), detail: L("Keep the phone close to the bike"), symbol: "dot.radiowaves.left.and.right", tone: .working)
         case .connecting:
-            return .init(title: "Connecting…", detail: connectedName ?? "Honda BTU", symbol: "link", tone: .working)
+            return .init(title: L("Connecting…"), detail: connectedName ?? "Honda BTU", symbol: "link", tone: .working)
         case .securing, .assigning:
-            return .init(title: "Pairing…", detail: "Setting up the handlebar buttons", symbol: "lock.shield.fill", tone: .working)
+            return .init(title: L("Pairing…"), detail: L("Setting up the handlebar buttons"), symbol: "lock.shield.fill", tone: .working)
         case .ready where dashMode == .phone:
-            return .init(title: "Ready to ride", detail: "Buttons control your music", symbol: "checkmark.circle.fill", tone: .good)
+            return .init(title: L("Ready to ride"), detail: L("Buttons control your music"), symbol: "checkmark.circle.fill", tone: .good)
         case .ready:
-            return .init(title: "Connected", detail: "Dash is on its own screen. Press Mute to switch", symbol: "rectangle.on.rectangle", tone: .warning)
+            return .init(title: L("Connected"), detail: L("Dash is on its own screen. Press Mute to switch"), symbol: "rectangle.on.rectangle", tone: .warning)
         case .failed:
-            return .init(title: "Something went wrong", detail: "Open Diagnostics for details", symbol: "exclamationmark.triangle.fill", tone: .bad)
+            return .init(title: L("Something went wrong"), detail: L("Open Diagnostics for details"), symbol: "exclamationmark.triangle.fill", tone: .bad)
         }
     }
 }
@@ -124,7 +124,7 @@ private struct HeroCard: View {
                 Button {
                     client.ensurePhoneScreen()
                 } label: {
-                    Label("Show phone screen on dash", systemImage: "iphone.gen3")
+                    Label(L("Show phone screen on dash"), systemImage: "iphone.gen3")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
@@ -175,14 +175,14 @@ private struct LastPressCard: View {
                         .contentTransition(.symbolEffect(.replace))
                 }
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("LAST BUTTON").font(.caption.weight(.semibold)).foregroundStyle(.secondary).tracking(1.2)
+                    Text(L("LAST BUTTON")).font(.caption.weight(.semibold)).foregroundStyle(.secondary).tracking(1.2)
                     if let press, let function = press.function {
                         Text(function.label).font(.title3.weight(.semibold))
-                        Text("\(function.action) · \(press.time, style: .relative) ago")
+                        Text("\(function.action) · ") + Text(press.time, style: .relative) + Text(" " + L("ago"))
                             .font(.subheadline).foregroundStyle(.secondary)
                     } else {
-                        Text("Press a handlebar button").font(.title3.weight(.semibold))
-                        Text("It shows up here").font(.subheadline).foregroundStyle(.secondary)
+                        Text(L("Press a handlebar button")).font(.title3.weight(.semibold))
+                        Text(L("It shows up here")).font(.subheadline).foregroundStyle(.secondary)
                     }
                 }
                 Spacer(minLength: 0)
@@ -200,9 +200,9 @@ private struct ButtonMapCard: View {
             Card {
                 VStack(alignment: .leading, spacing: 14) {
                     HStack {
-                        Text("BUTTONS").font(.caption.weight(.semibold)).foregroundStyle(.secondary).tracking(1.2)
+                        Text(L("BUTTONS")).font(.caption.weight(.semibold)).foregroundStyle(.secondary).tracking(1.2)
                         Spacer()
-                        Label("Customize", systemImage: "slider.horizontal.3")
+                        Label(L("Customize"), systemImage: "slider.horizontal.3")
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(.orange)
                     }
@@ -225,13 +225,13 @@ private struct DashScreenCard: View {
         Card {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    Text("DASH SCREEN").font(.caption.weight(.semibold)).foregroundStyle(.secondary).tracking(1.2)
+                    Text(L("DASH SCREEN")).font(.caption.weight(.semibold)).foregroundStyle(.secondary).tracking(1.2)
                     Text("BETA").font(.caption2.weight(.bold)).foregroundStyle(.black)
                         .padding(.horizontal, 6).padding(.vertical, 2)
                         .background(.yellow, in: Capsule())
                 }
                 Toggle(isOn: $drawOnDash) {
-                    Label("Show music on the dash", systemImage: "rectangle.inset.filled")
+                    Label(L("Show music on the dash"), systemImage: "rectangle.inset.filled")
                         .font(.body.weight(.medium))
                 }
                 .onChange(of: drawOnDash) { _, on in
@@ -248,7 +248,7 @@ private struct DashScreenCard: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
                 }
-                Text("If the dash stops showing the phone screen after this: turn this off, delete the phone pairing on the dash, forget HONDA BTU in iPhone Bluetooth settings, and pair again.")
+                Text(L("If the dash stops showing the phone screen after this: turn this off, delete the phone pairing on the dash, forget HONDA BTU in iPhone Bluetooth settings, and pair again."))
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
@@ -277,10 +277,10 @@ extension ButtonFunction {
             return action == .nothing ? "—" : action.label
         case .volumeMute:
             let action = ButtonSettings.action(for: self)
-            return action == .nothing ? "Phone screen" : action.label
+            return action == .nothing ? L("Phone screen") : action.label
         case .volumeUp, .volumeDown: return "—"
-        case .modeSAB: return "Phone screen on"
-        case .modeHU: return "Scooter screen on"
+        case .modeSAB: return L("Phone screen on")
+        case .modeHU: return L("Scooter screen on")
         }
     }
 }

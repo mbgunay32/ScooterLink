@@ -592,7 +592,7 @@ extension SABClient: CBPeripheralDelegate {
             let press = ButtonPress(raw: byte)
             let wasOnPhoneScreen = dashMode == .phone
             presses.insert(press, at: 0)
-            note("🔘 BUTTON \(press.function?.label ?? "unknown") (\(value.hex))")
+            note("🔘 BUTTON \(press.function.map { "\($0)" } ?? "unknown") (\(value.hex))")
             switch press.function {
             case .modeSAB:
                 dashMode = .phone

@@ -62,16 +62,16 @@ enum ButtonAction: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .nothing: return "Nothing"
-        case .playPause: return "Play / pause"
-        case .play: return "Play"
-        case .pause: return "Pause"
-        case .nextTrack: return "Next track"
-        case .previousTrack: return "Previous track"
-        case .back15: return "Back 15 s"
-        case .forward15: return "Forward 15 s"
-        case .back30: return "Back 30 s"
-        case .forward30: return "Forward 30 s"
+        case .nothing: return L("Nothing")
+        case .playPause: return L("Play / pause")
+        case .play: return L("Play")
+        case .pause: return L("Pause")
+        case .nextTrack: return L("Next track")
+        case .previousTrack: return L("Previous track")
+        case .back15: return L("Back 15 s")
+        case .forward15: return L("Forward 15 s")
+        case .back30: return L("Back 30 s")
+        case .forward30: return L("Forward 30 s")
         }
     }
 

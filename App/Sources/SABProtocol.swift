@@ -75,16 +75,16 @@ enum ButtonFunction: UInt8, CaseIterable {
 
     var label: String {
         switch self {
-        case .previous: return "Previous"
-        case .next: return "Next"
-        case .back: return "Back"
-        case .select: return "Select"
-        case .volumeUp: return "Volume +"
-        case .volumeDown: return "Volume −"
-        case .volumeMute: return "Mute"
-        case .menu: return "Menu"
-        case .modeSAB: return "Mode: phone screen"
-        case .modeHU: return "Mode: scooter screen"
+        case .previous: return L("Previous")
+        case .next: return L("Next")
+        case .back: return L("Back")
+        case .select: return L("Select")
+        case .volumeUp: return L("Volume +")
+        case .volumeDown: return L("Volume −")
+        case .volumeMute: return L("Mute")
+        case .menu: return L("Menu")
+        case .modeSAB: return L("Mode: phone screen")
+        case .modeHU: return L("Mode: scooter screen")
         }
     }
 

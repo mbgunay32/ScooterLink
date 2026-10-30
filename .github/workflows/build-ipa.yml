@@ -16,8 +16,11 @@ jobs:
       - name: Self-tests (crypto, protocol, dash text)
         working-directory: App
         run: |
-          xcrun swiftc -o /tmp/sl-test Sources/SABCrypto.swift Sources/SABProtocol.swift Sources/DashScreen.swift Tests/main.swift
-          /tmp/sl-test
+          # Every compiler error and FAIL line also becomes an annotation, readable without the raw log.
+          set -o pipefail
+          xcrun swiftc -o /tmp/sl-test Sources/SABCrypto.swift Sources/SABProtocol.swift Sources/DashScreen.swift Tests/main.swift 2>&1 \
+            | tee /tmp/compile.log || { grep -E "error:" /tmp/compile.log | head -20 | sed 's/^/::error::/'; exit 1; }
+          /tmp/sl-test 2>&1 | tee /tmp/test.log || { grep -vE "^PASS" /tmp/test.log | head -20 | sed 's/^/::error::/'; exit 1; }
 
       - name: Install XcodeGen
         run: brew install xcodegen

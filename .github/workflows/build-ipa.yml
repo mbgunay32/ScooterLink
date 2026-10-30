@@ -13,6 +13,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Self-tests (crypto, protocol, dash text)
+        working-directory: App
+        run: |
+          xcrun swiftc -o /tmp/sl-test Sources/SABCrypto.swift Sources/SABProtocol.swift Sources/DashScreen.swift Tests/main.swift
+          /tmp/sl-test
+
       - name: Install XcodeGen
         run: brew install xcodegen
 

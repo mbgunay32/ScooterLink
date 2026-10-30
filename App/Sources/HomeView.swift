@@ -10,6 +10,7 @@ struct HomeView: View {
                 HeroCard()
                 LastPressCard()
                 ButtonMapCard()
+                DashScreenCard()
                 Text("Turn the key and ScooterLink connects by itself. Keep it in the app switcher: iOS won't relaunch an app you swipe away.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
@@ -212,6 +213,46 @@ private struct ButtonMapCard: View {
             }
         }
         .buttonStyle(.plain)
+    }
+}
+
+/// Experimental: draw a simple music screen on the dash. Off unless the rider turns it on.
+private struct DashScreenCard: View {
+    @EnvironmentObject private var client: SABClient
+    @AppStorage(Features.drawOnDashKey) private var drawOnDash = false
+
+    var body: some View {
+        Card {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text("DASH SCREEN").font(.caption.weight(.semibold)).foregroundStyle(.secondary).tracking(1.2)
+                    Text("BETA").font(.caption2.weight(.bold)).foregroundStyle(.black)
+                        .padding(.horizontal, 6).padding(.vertical, 2)
+                        .background(.yellow, in: Capsule())
+                }
+                Toggle(isOn: $drawOnDash) {
+                    Label("Show music on the dash", systemImage: "rectangle.inset.filled")
+                        .font(.body.weight(.medium))
+                }
+                .onChange(of: drawOnDash) { _, on in
+                    if on { client.pushScreen(force: true) }
+                }
+                if let screen = client.dashScreen {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(String(decoding: LiveScreen.clean(screen.header), as: UTF8.self))
+                            .font(.caption.weight(.bold))
+                        Text(String(decoding: LiveScreen.clean(screen.line1 ?? ""), as: UTF8.self))
+                            .font(.system(.body, design: .monospaced))
+                    }
+                    .padding(10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                }
+                Text("If the dash stops showing the phone screen after this: turn this off, delete the phone pairing on the dash, forget HONDA BTU in iPhone Bluetooth settings, and pair again.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+        }
     }
 }
 

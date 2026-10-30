@@ -5,8 +5,10 @@ import SwiftUI
 /// bike test. On 2026-10-17 colour slots above 18 (and/or our first drawn screen) left the
 /// Bluetooth unit unable to show the phone screen until the pairing was deleted and redone.
 enum Features {
-    /// Send our own LIVE screen (MYSTERY_BOX) to the dash.
-    static let drawOnDash = false
+    /// Send our own LIVE screen (MYSTERY_BOX) to the dash. Off by default; the rider turns it
+    /// on from the home screen. Uses RoadSync's own colour slots only (no custom colours).
+    static let drawOnDashKey = "feature.drawOnDash"
+    static var drawOnDash: Bool { UserDefaults.standard.bool(forKey: drawOnDashKey) }
     /// Put the user's colour into the orange slots instead of RoadSync's orange.
     static let customColours = false
 }
@@ -89,7 +91,28 @@ struct LiveScreen: Equatable {
 
     /// The dash font is basic; keep to printable ASCII-ish text and the 30-character limit.
     static func clean(_ text: String) -> [UInt8] {
-        let folded = text.folding(options: [.diacriticInsensitive, .widthInsensitive], locale: .current)
+        // Letters that have no ASCII base form: map them before folding drops them.
+        let mapped = text.map { (c: Character) -> String in
+            switch c {
+            case "ı": return "i"
+            case "İ": return "I"
+            case "ß": return "ss"
+            case "æ": return "ae"
+            case "Æ": return "AE"
+            case "ø": return "o"
+            case "Ø": return "O"
+            case "ł": return "l"
+            case "Ł": return "L"
+            case "đ": return "d"
+            case "Đ": return "D"
+            case "\u{2018}", "\u{2019}": return "'"
+            case "\u{201C}", "\u{201D}": return "\""
+            case "\u{2013}", "\u{2014}": return "-"
+            case "\u{2026}": return "..."
+            default: return String(c)
+            }
+        }.joined()
+        let folded = mapped.folding(options: [.diacriticInsensitive, .widthInsensitive], locale: .current)
         let scalars = folded.unicodeScalars.filter { $0.value >= 0x20 && $0.value < 0x7F }
         return Array(String(String.UnicodeScalarView(scalars)).prefix(maxText).utf8)
     }

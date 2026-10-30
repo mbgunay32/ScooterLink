@@ -192,26 +192,26 @@ private struct LastPressCard: View {
 }
 
 private struct ButtonMapCard: View {
-    private let rows: [ButtonFunction] = [.select, .back, .next, .previous, .volumeMute]
-
     var body: some View {
-        Card {
-            VStack(alignment: .leading, spacing: 14) {
-                Text("BUTTONS").font(.caption.weight(.semibold)).foregroundStyle(.secondary).tracking(1.2)
-                ForEach(rows, id: \.rawValue) { function in
-                    HStack(spacing: 12) {
-                        Image(systemName: function.symbol)
-                            .font(.body.weight(.semibold))
-                            .foregroundStyle(.orange)
-                            .frame(width: 36, height: 36)
-                            .background(.orange.opacity(0.15), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-                        Text(function.label).font(.body.weight(.medium))
+        NavigationLink {
+            ButtonSettingsView()
+        } label: {
+            Card {
+                VStack(alignment: .leading, spacing: 14) {
+                    HStack {
+                        Text("BUTTONS").font(.caption.weight(.semibold)).foregroundStyle(.secondary).tracking(1.2)
                         Spacer()
-                        Text(function.action).font(.subheadline).foregroundStyle(.secondary)
+                        Label("Customize", systemImage: "slider.horizontal.3")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.orange)
+                    }
+                    ForEach(ButtonSettings.configurable, id: \.rawValue) { function in
+                        ButtonMapRow(function: function)
                     }
                 }
             }
         }
+        .buttonStyle(.plain)
     }
 }
 
@@ -231,11 +231,12 @@ extension ButtonFunction {
     /// What the button does in ScooterLink.
     var action: String {
         switch self {
-        case .select, .back: return "Play / pause"
-        case .next: return "Next track"
-        case .previous: return "Previous track"
-        case .volumeMute: return "Phone screen"
-        case .menu: return "—"
+        case .select, .back, .next, .previous, .menu:
+            let action = ButtonSettings.action(for: self)
+            return action == .nothing ? "—" : action.label
+        case .volumeMute:
+            let action = ButtonSettings.action(for: self)
+            return action == .nothing ? "Phone screen" : action.label
         case .volumeUp, .volumeDown: return "—"
         case .modeSAB: return "Phone screen on"
         case .modeHU: return "Scooter screen on"

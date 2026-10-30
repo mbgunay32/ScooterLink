@@ -590,6 +590,7 @@ extension SABClient: CBPeripheralDelegate {
         guard error == nil, let value = c.value else { return }
         if c.uuid == SAB.DataCommunication.functionSource, let byte = value.first {
             let press = ButtonPress(raw: byte)
+            let wasOnPhoneScreen = dashMode == .phone
             presses.insert(press, at: 0)
             note("🔘 BUTTON \(press.function?.label ?? "unknown") (\(value.hex))")
             switch press.function {
@@ -611,6 +612,8 @@ extension SABClient: CBPeripheralDelegate {
                     return
                 }
                 lastAction = (function, Date())
+                // On the scooter's own screen Mute only brings the phone screen back.
+                if function == .volumeMute && !wasOnPhoneScreen { return }
                 ButtonActions.handle(function) { [weak self] in self?.note("   ↳ \($0)") }
                 if Features.drawOnDash {
                     Task { @MainActor [weak self] in

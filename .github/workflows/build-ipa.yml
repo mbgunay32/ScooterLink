@@ -1,0 +1,45 @@
+# Builds an unsigned ScooterLink.ipa on every push (and on demand from the Actions tab).
+# Sideloadly / AltStore / SideStore sign it with your own Apple ID when installing.
+name: Build IPA
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate project
+        working-directory: App
+        run: xcodegen generate
+
+      - name: Build (unsigned)
+        working-directory: App
+        run: |
+          set -o pipefail
+          xcodebuild -project ScooterLink.xcodeproj -scheme ScooterLink -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            build | tee build.log | grep -E "error:|warning: .*Sources|BUILD (SUCCEEDED|FAILED)"
+
+      - name: Package IPA
+        working-directory: App
+        run: |
+          VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" build/Build/Products/Release-iphoneos/ScooterLink.app/Info.plist)
+          mkdir -p ipa/Payload
+          cp -R build/Build/Products/Release-iphoneos/ScooterLink.app ipa/Payload/
+          (cd ipa && zip -qr "../ScooterLink-$VERSION.ipa" Payload)
+          echo "IPA_NAME=ScooterLink-$VERSION.ipa" >> "$GITHUB_ENV"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.IPA_NAME }}
+          path: App/${{ env.IPA_NAME }}
+          if-no-files-found: error
